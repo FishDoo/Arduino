@@ -100,7 +100,7 @@ void printUsage() {
   Serial.println(F("Set pin LOW:     SET D3 LOW   (S D3 L)"));
   Serial.println(F("Read single pin: READ D3      (R D3)"));
   Serial.println(F("Read all pins:   READ ALL     (R A)"));
-  Serial.println(F("Toggle control:  CONTROL ON/OFF"));
+  Serial.println(F("Toggle control:  CTL ON/OFF"));
   Serial.println(F("Supported pins:  D2~D9, A0~A5"));
   Serial.println(F("================================================"));
 }
@@ -112,12 +112,12 @@ void handleSerial() {
   cmd.trim();
   cmd.toUpperCase();
 
-  if (cmd == "CONTROL ON") {
+  if (cmd == "CTL ON") {
     serialControl = true;
     Serial.println(F("Serial control enabled"));
     return;
   }
-  if (cmd == "CONTROL OFF") {
+  if (cmd == "CTL OFF") {
     serialControl = false;
     Serial.println(F("Serial control disabled"));
     return;
