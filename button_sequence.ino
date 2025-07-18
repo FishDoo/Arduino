@@ -2,6 +2,8 @@ void updateLeds(int state);
 void handleSerial();
 void printUsage();
 
+bool serialControl = false;  // true = COM port controls LEDs, button disabled
+
 const int buttonPin = 2;
 const int ledPins[] = {3, 4, 5};
 
@@ -19,20 +21,22 @@ void setup() {
 }
 
 void loop() {
-  bool reading = digitalRead(buttonPin);
+  if (!serialControl) {
+    bool reading = digitalRead(buttonPin);
 
-  // detect button press (transition from HIGH to LOW)
-  if (lastButtonState == HIGH && reading == LOW) {
-    // simple debounce delay
-    delay(50);
-    reading = digitalRead(buttonPin);
-    if (reading == LOW) {
-      currentState = (currentState + 1) % 4;  // cycle states 0..3
-      updateLeds(currentState);
+    // detect button press (transition from HIGH to LOW)
+    if (lastButtonState == HIGH && reading == LOW) {
+      // simple debounce delay
+      delay(50);
+      reading = digitalRead(buttonPin);
+      if (reading == LOW) {
+        currentState = (currentState + 1) % 4;  // cycle states 0..3
+        updateLeds(currentState);
+      }
     }
-  }
 
-  lastButtonState = reading;
+    lastButtonState = reading;
+  }
 
   handleSerial();
 }
@@ -64,6 +68,8 @@ void updateLeds(int state) {
 
 void printUsage() {
   Serial.println(F("Commands:"));
+  Serial.println(F("  CONTROL ON  - enable serial control"));
+  Serial.println(F("  CONTROL OFF - disable serial control"));
   Serial.println(F("  D3 HIGH/LOW"));
   Serial.println(F("  D4 HIGH/LOW"));
   Serial.println(F("  D5 HIGH/LOW"));
@@ -83,17 +89,23 @@ void handleSerial() {
       Serial.print(digitalRead(ledPins[1]) ? "HIGH" : "LOW");
       Serial.print(" D5=");
       Serial.println(digitalRead(ledPins[2]) ? "HIGH" : "LOW");
-    } else if (cmd.startsWith("D3 ")) {
+    } else if (cmd == "CONTROL ON") {
+      serialControl = true;
+      Serial.println(F("Serial control enabled"));
+    } else if (cmd == "CONTROL OFF") {
+      serialControl = false;
+      Serial.println(F("Serial control disabled"));
+    } else if (serialControl && cmd.startsWith("D3 ")) {
       String val = cmd.substring(3);
       val.trim();
       if (val == "HIGH") digitalWrite(ledPins[0], HIGH);
       else if (val == "LOW") digitalWrite(ledPins[0], LOW);
-    } else if (cmd.startsWith("D4 ")) {
+    } else if (serialControl && cmd.startsWith("D4 ")) {
       String val = cmd.substring(3);
       val.trim();
       if (val == "HIGH") digitalWrite(ledPins[1], HIGH);
       else if (val == "LOW") digitalWrite(ledPins[1], LOW);
-    } else if (cmd.startsWith("D5 ")) {
+    } else if (serialControl && cmd.startsWith("D5 ")) {
       String val = cmd.substring(3);
       val.trim();
       if (val == "HIGH") digitalWrite(ledPins[2], HIGH);
