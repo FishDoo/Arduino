@@ -1,5 +1,6 @@
 void updateLeds(int state);
 void handleSerial();
+void printUsage();
 
 const int buttonPin = 2;
 const int ledPins[] = {3, 4, 5};
@@ -9,6 +10,7 @@ bool lastButtonState = HIGH;
 
 void setup() {
   Serial.begin(9600);
+  printUsage();
   pinMode(buttonPin, INPUT_PULLUP);  // D2 as input with pull-up
   for (int i = 0; i < 3; ++i) {
     pinMode(ledPins[i], OUTPUT);
@@ -58,6 +60,14 @@ void updateLeds(int state) {
       digitalWrite(ledPins[2], HIGH);
       break;
   }
+}
+
+void printUsage() {
+  Serial.println(F("Commands:"));
+  Serial.println(F("  D3 HIGH/LOW"));
+  Serial.println(F("  D4 HIGH/LOW"));
+  Serial.println(F("  D5 HIGH/LOW"));
+  Serial.println(F("  STATUS - report pin states"));
 }
 
 void handleSerial() {
